@@ -10,10 +10,10 @@ The goals / steps of this project are the following:
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
-[image1]: ./output_images/car_not_car.png
-[image21]: ./output_images/hog1.png
-[image22]: ./output_images/hog2.png
-[image23]: ./output_images/hog3.png
+[image1]: ./output_images/car_non_car.png
+[image21]: ./output_images/hog0.png
+[image22]: ./output_images/hog1.png
+[image23]: ./output_images/hog2.png
 [image3]: ./output_images/sliding_window.png
 [image4]: ./output_images/sliding_limit.png
 [image51]: ./output_images/pipeline1.png
@@ -56,7 +56,8 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 ####2. Explain how you settled on your final choice of HOG parameters.
 
 I tried various combinations of parameters and found below parameters give good accuracy with faster training time. 
-I found that with lower count of pixels_per_cell, running time and memory resources for hog extraction were high. I also found that using 3 color channels gave better accuracy than single channel hog features.  
+I found that with lower count of pixels_per_cell, running time and memory resources for hog extraction are high. I also found that using 3 color channels gave better accuracy than single channel hog features.  
+
 Finally I settled on following hog features:-
 * orientations    = 9
 * pixels_per_cell = (8, 8)
@@ -69,35 +70,41 @@ Finally I settled on following hog features:-
 Training classifer code can be found at `TRAINING CLASSIFIER` section of `sol.ipynb`. 
 For classification, I used SVM (Support Vector Machine) classifier with default options. I used following features for classifier. 
 
-1) Binned color
-Here we resize the image to (32, 32) and then use its flattened array
+1) Binned color  
 
-2) Color Histogram
+Here I resize the image to (32, 32) and then use its flattened array
+
+2) Color Histogram  
+
 Create a histogram of intensity in each channel with 32 bins and concatenate all these channels.
 
-3) HOG
-We create hog of each channel as discussed in hog section of this document.
+3) HOG  
 
-We standardize the data by using `StandardScaler` module of `sklearn.preprocessing` 
-We randomly split training and testing data (20%) for cross-validation. After training SVM on train data, we check accuracy of more than 98% on testing data. 
+I create hog of each channel as discussed in hog section of this document.
+
+I standardize the data by using `StandardScaler` module of `sklearn.preprocessing`.   
+I randomly split training and testing data (20%) for cross-validation. After training SVM on train data, we find accuracy of more than 98% on testing data. 
 
 ###Sliding Window Search
 
 ####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I slide windows of size 64 * 64 across the image. In each portion of sliding window, I extract features and check for cars using trained model. I collect all car predicting boxes. I maintain an overlap of 50% between different windows which was able to give car detections with good runtime performance.
-To find cars with varying view sizes, I resize the image with different scales 1.5, 1.8 and 2.0 and then run slide windows. When I scaled my image with ratio below 1.0. it was taking high time and accuracy was not good with multiple false detections so I only scale greater than 1.0.
-Implementation of sliding windows can be found at `find_cars` function of `sol.ipynb`. Below is sample image of boxes found through sliding windows.
+I slide windows of size 64 * 64 across the image. In each portion of sliding window, I extract features and check for cars using trained model. I collect all car predicting boxes. I maintain an overlap of 50% between different windows which was able to give car detections with good runtime performance.   
+To find cars with varying view sizes, I resize the image with different scales 1.5, 1.8 and 2.0 and then run slide windows. When I scaled my image with ratio below 1, it was taking high time and accuracy was not good with multiple false detections so I only scale greater than 1.0.  
+Implementation of sliding windows can be found at `find_cars` function of `sol.ipynb`.  
+Below is sample image of boxes found through sliding windows.
 
 ![sliding windows][image3]
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working. What did you do to optimize the performance of your classifier?
 
 I create HOG of entire image once and just take its subsample on each sliding window to improve runtime performance. 
-To overcome false detections, I limited search area of sliding windows in between road lanes as shown in below image. This also improved performance of my pipeline.
+To overcome false detections, I limited search area of sliding windows in between road lanes as shown in below image. This also improved performance of my pipeline.   
+
 ![sliding limit][image4]
 
-Also I create a heatmap as per count of boxes in each pixel and apply a threshold limit so that false detections are filtered out. Output of my pipeline for different test images is depicted below.
+Also I create a heatmap as per count of boxes in each pixel and apply a threshold limit so that false detections are filtered out. Output of my pipeline for different test images is depicted below.  
+
 ![pipeline][image51]
 ![pipeline][image52]
 ![pipeline][image53]
@@ -109,7 +116,7 @@ Also I create a heatmap as per count of boxes in each pixel and apply a threshol
 
 ### Video Implementation
 
-####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
+####1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)    
 Here's a [link to my video result](./project_video.mp4)
 
 
@@ -118,7 +125,7 @@ Here's a [link to my video result](./project_video.mp4)
 I recorded the positions of positive detections in each frame of the video.  From the positive detections, I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap. I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
 Check pipeline output image in last section.
 
-I also keep a dequeue for last 10 frames and take their sum to create smooth bouding box and avoid jitter in video. It also avoid glitches in car detection.
+I also keep a dequeue for last 10 frames and take their sum with a threshold to create smooth bouding box and avoid jitters in video. It also avoid glitches in car detection.
 
 ---
 
@@ -126,7 +133,7 @@ I also keep a dequeue for last 10 frames and take their sum to create smooth bou
 
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-As shown in video output, Pipeline mentioned in this document is able to detect cars with high accuracy most of frames.
+As shown in video output, Pipeline mentioned in this document is able to detect cars with high accuracy in most of frames.  
 We still can try to mitigate below issues:-
 
 1) To not detect cars coming from opposite directions.   
@@ -136,5 +143,5 @@ We still can try to mitigate below issues:-
 To make pipleline more robust, we can try following actions
 1) Using Deep Learning
 2) Better Thersholds, hyperparameters
-3) We can augment trainign data of vehicles and non-vehicles
+3) We can augment training data of vehicles and non-vehicles
 4) Try on different videos and road conditions
