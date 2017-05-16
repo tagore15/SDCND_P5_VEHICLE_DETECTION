@@ -138,9 +138,9 @@ We still can try to mitigate below issues:-
 
 1) To not detect cars coming from opposite directions.   
 2) Time lag between when car is able to get detected after entry into frame.    
-3) separate boudning box of overlapping cars
+3) separate bounding box of overlapping cars
 
-To make pipleline more robust, we can try following actions
+To make pipeline more robust, we can try following actions
 1) Using Deep Learning
 2) Better Thersholds, hyperparameters
 3) We can augment training data of vehicles and non-vehicles
